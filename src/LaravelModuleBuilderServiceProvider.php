@@ -2,11 +2,11 @@
 
 namespace Mbedzinski\LaravelModuleBuilder;
 
-use Mbedzinski\LaravelModuleBuilder\Commands\ServiceProviderBuildCommand;
+use Mbedzinski\LaravelModuleBuilder\Commands\LaravelModuleBuilderCommand;
 use Mbedzinski\LaravelModuleBuilder\Commands\ModelBuildCommand;
+use Mbedzinski\LaravelModuleBuilder\Commands\ServiceProviderBuildCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Mbedzinski\LaravelModuleBuilder\Commands\LaravelModuleBuilderCommand;
 
 class LaravelModuleBuilderServiceProvider extends PackageServiceProvider
 {

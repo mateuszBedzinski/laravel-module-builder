@@ -13,11 +13,11 @@ class ModelBuildCommand extends BaseCommand
     protected function getDefaultNamespace($rootNamespace)
     {
         $moduleName = $this->getNameInput();
-        $config     = config("laravel_module_builder.structures.default");
-        $baseDir    = $config[ 'baseDir' ].'\\'.$moduleName;
+        $config = config("laravel_module_builder.structures.default");
+        $baseDir = $config[ 'baseDir' ].'\\'.$moduleName;
         
-        $path      = $config[ 'paths' ][ 'models' ];
-        $path      = str_replace('{base_dir}', $baseDir, $path);
+        $path = $config[ 'paths' ][ 'models' ];
+        $path = str_replace('{base_dir}', $baseDir, $path);
         $pathParts = explode('\\', $path);
         
         $namespace = '';
