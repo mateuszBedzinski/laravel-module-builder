@@ -118,8 +118,8 @@ class LaravelModuleBuilderCommand extends Command
     protected function makeViews(): self
     {
         $baseDir = base_path().'/'.config("laravel_module_builder.structures.default.baseDir").'/'.$this->module;
-        $path    = config("laravel_module_builder.structures.default.paths.views");
-        $path    = str_replace('{base_dir}', $baseDir, $path);
+        $path = config("laravel_module_builder.structures.default.paths.views");
+        $path = str_replace('{base_dir}', $baseDir, $path);
         
         if (File::isDirectory($path)) {
             throw new \Exception('Module views directory already exists');
@@ -129,5 +129,4 @@ class LaravelModuleBuilderCommand extends Command
         
         return $this;
     }
-    
 }
