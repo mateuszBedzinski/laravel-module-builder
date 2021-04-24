@@ -10,6 +10,9 @@ class LaravelModuleBuilderCommand extends Command
     private array $structure;
     private string $module;
     
+    private $model;
+    private $controller;
+    
     public $signature = 'make:module
                             {module}
                             {--structure=default}
@@ -49,7 +52,7 @@ class LaravelModuleBuilderCommand extends Command
     
     public function handle()
     {
-        try {
+        try{
             $activeStructure = $this->option('structure') == 'default' ? config('laravel_module_builder.structure') : $this->options('structure');
             
             $this->structure = config("laravel_module_builder.structures.{$activeStructure}");
@@ -58,26 +61,56 @@ class LaravelModuleBuilderCommand extends Command
             
             $this->prepareModuleStructure();
             
-            $baseNamespace = config("laravel_module_builder.structures.default.baseNamespace").'\\'.$this->module;
-            $modelsPath = config("laravel_module_builder.structures.default.paths.models");
-            $modelsPath = str_replace('{base_dir}', $baseNamespace, $modelsPath).'\\'.$this->module;
-            
-            $this->call('make:model', [
-                'name' => $modelsPath,
-            ]);
-            
-            if (! $this->option('no-service-provider')) {
-                $this->call('module:service-provide', [
-                    'name' => $this->module.'ServiceProvider',
-                    'model' => $this->module,
-                ]);
-            }
+            $this->makeModel();
+            $this->makeProvider();
+            $this->makeController();
             
             $this->comment('All done');
-        } catch (\Exception $error) {
+        } catch (\Exception $error){
             $this->error('An error occurred: '.$error->getMessage());
             
             return;
         }
+    }
+    protected function makeModel(): self
+    {
+        $baseNamespace = config("laravel_module_builder.structures.default.baseNamespace").'\\'.$this->module;
+        $modelsPath    = config("laravel_module_builder.structures.default.paths.models");
+        $modelsPath    = str_replace('{base_dir}', $baseNamespace, $modelsPath).'\\'.$this->module;
+        
+        $this->model = $modelsPath;
+        
+        $this->call('make:model', [
+            'name' => $modelsPath,
+        ]);
+        
+        return $this;
+    }
+    
+    protected function makeController(): self
+    {
+        $baseNamespace = config("laravel_module_builder.structures.default.baseNamespace").'\\'.$this->module;
+        $path          = config("laravel_module_builder.structures.default.paths.controllers");
+        $path          = str_replace('{base_dir}', $baseNamespace, $path).'\\'.$this->module;
+        
+        $this->controller = $path;
+        
+        $this->call('make:controller', [
+            'name'       => $path.'Controller',
+            '--model'    => $this->model,
+            '--resource' => true,
+        ]);
+        
+        return $this;
+    }
+    
+    protected function makeProvider(): self
+    {
+        $this->call('module:service-provide', [
+            'name'  => $this->module.'ServiceProvider',
+            'model' => $this->module,
+        ]);
+        
+        return $this;
     }
 }
