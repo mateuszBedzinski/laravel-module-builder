@@ -26,16 +26,15 @@ class LaravelModuleBuilderCommand extends Command
                             {--no-helpers}
                             {--no-services}';
     
-    public $description = 'My command';
+    public $description = 'Create module';
     
-    private function preparePath(string $destination = null): string
+    private function preparePath(): string
     {
         $path = base_path();
         $path .= $this->structure[ 'baseDir' ];
         $path .= '/'.$this->module;
         
         File::deleteDirectory($path);
-        File::deleteDirectory($path.'/Models');
         
         return $path;
     }
@@ -64,6 +63,7 @@ class LaravelModuleBuilderCommand extends Command
             $this->makeModel();
             $this->makeProvider();
             $this->makeController();
+            $this->makeViews();
             
             $this->comment('All done');
         } catch (\Exception $error){
@@ -72,6 +72,7 @@ class LaravelModuleBuilderCommand extends Command
             return;
         }
     }
+    
     protected function makeModel(): self
     {
         $baseNamespace = config("laravel_module_builder.structures.default.baseNamespace").'\\'.$this->module;
@@ -113,4 +114,18 @@ class LaravelModuleBuilderCommand extends Command
         
         return $this;
     }
+    
+    protected function makeViews(): self
+    {
+        $baseNamespace = config("laravel_module_builder.structures.default.baseNamespace").'\\'.$this->module;
+        $path          = config("laravel_module_builder.structures.default.paths.views");
+        $path          = str_replace('{base_dir}', $baseNamespace, $path);
+        
+        if (File::isDirectory($path)) {
+            throw new \Exception('Module views directory already exists');
+        }
+        
+        return File::makeDirectory($path);
+    }
+    
 }
