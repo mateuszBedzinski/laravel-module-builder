@@ -1,24 +1,25 @@
 {
-    "name": "vendor_slug/package_slug",
-    "description": ":package_description",
+    "name": "mbedzinski/laravel_module_builder",
+    "description": "This is my package LaravelModuleBuilder",
     "keywords": [
-        ":vendor_name",
+        "mbedzinski",
         "laravel",
-        "package_slug"
+        "laravel_module_builder"
     ],
-    "homepage": "https://github.com/vendor_slug/package_slug",
+    "homepage": "https://github.com/mbedzinski/laravel_module_builder",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "mbedzinski",
+            "email": "mbedzinski@gmail.com",
             "role": "Developer"
         }
     ],
     "require": {
         "php": "^8.0",
-        "spatie/laravel-package-tools": "^1.4.3",
-        "illuminate/contracts": "^8.0"
+        "illuminate/contracts": "^8.0",
+        "laravel/tinker": "^2.6",
+        "spatie/laravel-package-tools": "^1.4.3"
     },
     "require-dev": {
         "brianium/paratest": "^6.2",
@@ -30,19 +31,19 @@
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src",
-            "VendorName\\Skeleton\\Database\\Factories\\": "database/factories"
+            "Mbedzinski\\LaravelModuleBuilder\\": "src",
+            "Mbedzinski\\LaravelModuleBuilder\\Database\\Factories\\": "database/factories"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests"
+            "Mbedzinski\\LaravelModuleBuilder\\Tests\\": "tests"
         }
     },
     "scripts": {
-        "psalm": "vendor/bin/psalm",
-        "test": "./vendor/bin/testbench package:test --parallel --no-coverage",
-        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+        "psalm": "vendor\\bin\\psalm",
+        "test": " .\\vendor\\bin\\testbench package:test --parallel --no-coverage",
+        "test-coverage": "vendor\\bin\\phpunit --coverage-html coverage"
     },
     "config": {
         "sort-packages": true
@@ -50,10 +51,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Skeleton\\SkeletonServiceProvider"
+                "Mbedzinski\\LaravelModuleBuilder\\LaravelModuleBuilderServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\SkeletonFacade"
+                "LaravelModuleBuilder": "Mbedzinski\\LaravelModuleBuilder\\LaravelModuleBuilderFacade"
             }
         }
     },

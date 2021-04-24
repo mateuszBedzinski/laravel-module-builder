@@ -1,0 +1,49 @@
+<?php
+
+namespace DummyNamespace;
+
+use Illuminate\Support\ServiceProvider;
+use {Model_namespace};
+
+class DummyClass extends ServiceProvider
+{
+  private $moduleBaseDir;
+
+    public function register()
+    {
+        $loader = AliasLoader::getInstance();
+        $loader->alias('{Model_alias_name}', {Model_alias_class});
+    }
+
+    public function boot()
+    {
+        $this->moduleBaseDir = __DIR__.'/../';
+
+        $this
+            ->registerRoutes()
+            ->loadMigrations()
+            ->loadViews();
+    }
+
+    private function registerRoutes(): self
+    {
+        $this->loadRoutesFrom($this->moduleBaseDir.'Routes'.DIRECTORY_SEPARATOR.'Routes.php');
+
+        return $this;
+    }
+
+    private function loadMigrations(): self
+    {
+        $this->loadMigrationsFrom($this->moduleBaseDir.'Database/migrations');
+
+        return $this;
+    }
+
+    private function loadViews(): self
+    {
+        $this->loadViewsFrom($this->moduleBaseDir.'Views', 'Leads');
+
+        return $this;
+    }
+
+}
