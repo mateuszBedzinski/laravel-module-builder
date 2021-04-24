@@ -23,7 +23,6 @@ class LaravelModuleBuilderServiceProvider extends PackageServiceProvider
             ->hasViews()
             ->hasMigration('create_laravel_module_builder_table')
             ->hasCommand(LaravelModuleBuilderCommand::class)
-            ->hasCommand(ModelBuildCommand::class)
             ->hasCommand(ServiceProviderBuildCommand::class);
     }
 }
