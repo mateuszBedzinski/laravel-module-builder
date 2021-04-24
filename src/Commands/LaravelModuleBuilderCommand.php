@@ -4,8 +4,6 @@ namespace Mbedzinski\LaravelModuleBuilder\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
-use PHPUnit\Exception;
 
 class LaravelModuleBuilderCommand extends Command
 {
@@ -51,7 +49,7 @@ class LaravelModuleBuilderCommand extends Command
     
     public function handle()
     {
-        try{
+        try {
             $activeStructure = $this->option('structure') == 'default' ? config('laravel_module_builder.structure') : $this->options('structure');
             
             $this->structure = config("laravel_module_builder.structures.{$activeStructure}");
@@ -61,8 +59,8 @@ class LaravelModuleBuilderCommand extends Command
             $this->prepareModuleStructure();
             
             $baseNamespace = config("laravel_module_builder.structures.default.baseNamespace").'\\'.$this->module;
-            $modelsPath    = config("laravel_module_builder.structures.default.paths.models");
-            $modelsPath    = str_replace('{base_dir}', $baseNamespace, $modelsPath).'\\'.$this->module;
+            $modelsPath = config("laravel_module_builder.structures.default.paths.models");
+            $modelsPath = str_replace('{base_dir}', $baseNamespace, $modelsPath).'\\'.$this->module;
             
             $this->call('make:model', [
                 'name' => $modelsPath,
@@ -70,13 +68,13 @@ class LaravelModuleBuilderCommand extends Command
             
             if (! $this->option('no-service-provider')) {
                 $this->call('module:service-provide', [
-                    'name'  => $this->module.'ServiceProvider',
+                    'name' => $this->module.'ServiceProvider',
                     'model' => $this->module,
                 ]);
             }
             
             $this->comment('All done');
-        } catch (\Exception $error){
+        } catch (\Exception $error) {
             $this->error('An error occurred: '.$error->getMessage());
             
             return;
