@@ -27,9 +27,9 @@ class ServiceProviderBuildCommand extends ProviderMakeCommand
     protected function replaceModels($stub, $model): string
     {
         if ($model) {
-            $baseNamespace = config("laravel_module_builder.structures.default.baseNamespace").'\\'.$model;
-            $modelsPath = config("laravel_module_builder.structures.default.paths.models");
-            $modelsPath = str_replace('{base_dir}', $baseNamespace, $modelsPath).'\\'.$model;
+            $baseNamespace = config('laravel_module_builder.structures.default.baseNamespace').'\\'.$model;
+            $modelsPath    = config('laravel_module_builder.structures.default.paths.models');
+            $modelsPath    = str_replace('{base_dir}', $baseNamespace, $modelsPath).'\\'.$model;
             
             $stub = str_replace('{Model_alias_name}', $model, $stub);
             $stub = str_replace('{Model_alias_class}', $model.'::class', $stub);
@@ -50,11 +50,11 @@ class ServiceProviderBuildCommand extends ProviderMakeCommand
     protected function getDefaultNamespace($rootNamespace)
     {
         $moduleName = str_replace('ServiceProvider', '', $this->getNameInput());
-        $config = config("laravel_module_builder.structures.default");
-        $baseDir = $config[ 'baseDir' ].'\\'.$moduleName;
+        $config     = config('laravel_module_builder.structures.default');
+        $baseDir    = $config[ 'baseDir' ].'\\'.$moduleName;
         
-        $path = $config[ 'paths' ][ 'providers' ];
-        $path = str_replace('{base_dir}', $baseDir, $path);
+        $path      = $config[ 'paths' ][ 'providers' ];
+        $path      = str_replace('{base_dir}', $baseDir, $path);
         $pathParts = explode('\\', $path);
         
         $namespace = '';
