@@ -4,6 +4,7 @@ namespace Mbedzinski\LaravelModuleBuilder\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class LaravelModuleBuilderCommand extends Command
 {
@@ -12,6 +13,9 @@ class LaravelModuleBuilderCommand extends Command
     
     private $model;
     private $controller;
+    private $requestCreate;
+    private $requestUpdate;
+    private $migrations;
     
     public $signature = 'make:module
                             {module}
@@ -28,20 +32,20 @@ class LaravelModuleBuilderCommand extends Command
     
     public $description = 'Create module';
     
-    private function preparePath(): string
+    private function getModulePath(): string
     {
         $path = base_path();
-        $path .= $this->structure[ 'baseDir' ];
+        $path .= '/'.$this->structure[ 'baseDir' ];
         $path .= '/'.$this->module;
-        
-        File::deleteDirectory($path);
+
+//        File::deleteDirectory($path);
         
         return $path;
     }
     
     private function prepareModuleStructure()
     {
-        $path = $this->preparePath();
+        $path = $this->getModulePath();
         if (File::isDirectory($path)) {
             throw new \Exception('Module already exists');
         }
@@ -58,12 +62,19 @@ class LaravelModuleBuilderCommand extends Command
             
             $this->module = ucfirst($this->argument('module'));
             
+            //TODO DELETE ME!!
+            File::deleteDirectory($this->getModulePath());
+            
             $this->prepareModuleStructure();
             
             $this->makeModel();
             $this->makeProvider();
             $this->makeController();
             $this->makeViews();
+            $this->makeRoutes();
+            $this->makeServices();
+            $this->makeRequests();
+            $this->makeMigration();
             
             $this->comment('All done');
         } catch (\Exception $error) {
@@ -72,17 +83,34 @@ class LaravelModuleBuilderCommand extends Command
             return;
         }
     }
-
-    protected function makeModel(): self
+    
+    private function getPartPath($part)
+    {
+        $path = config("laravel_module_builder.structures.default.paths.{$part}");
+        
+        return str_replace('{base_dir}', $this->getModulePath(), $path);
+    }
+    
+    private function getPartNamespace($part, $fileName = null)
     {
         $baseNamespace = config("laravel_module_builder.structures.default.baseNamespace").'\\'.$this->module;
-        $modelsPath = config("laravel_module_builder.structures.default.paths.models");
-        $modelsPath = str_replace('{base_dir}', $baseNamespace, $modelsPath).'\\'.$this->module;
+        $path = config("laravel_module_builder.structures.default.paths.{$part}");
         
-        $this->model = $modelsPath;
+        return str_replace('{base_dir}', $baseNamespace, $path).($fileName ? ('\\'.$fileName) : '');
+    }
+    
+    private function getStub($stub): string
+    {
+        return File::get(__DIR__."/../Stubs/{$stub}.stub");
+    }
+    
+    protected function makeModel(): self
+    {
+        $path = $this->getPartNamespace('models', $this->module);
+        $this->model = $path;
         
         $this->call('make:model', [
-            'name' => $modelsPath,
+            'name' => $path,
         ]);
         
         return $this;
@@ -90,16 +118,30 @@ class LaravelModuleBuilderCommand extends Command
     
     protected function makeController(): self
     {
-        $baseNamespace = config("laravel_module_builder.structures.default.baseNamespace").'\\'.$this->module;
-        $path = config("laravel_module_builder.structures.default.paths.controllers");
-        $path = str_replace('{base_dir}', $baseNamespace, $path).'\\'.$this->module;
+        $path = $this->getPartNamespace('controllers', $this->module.'Controller');
+        
+        $this->call('make:controller', [
+            'name' => $path,
+            '--model' => $this->model,
+            '--resource' => true,
+        ]);
         
         $this->controller = $path;
         
-        $this->call('make:controller', [
-            'name' => $path.'Controller',
-            '--model' => $this->model,
-            '--resource' => true,
+        return $this;
+    }
+    
+    protected function makeRequests(): self
+    {
+        $this->requestCreate = $this->getPartNamespace('requests', $this->module.'CreateRequest');
+        $this->requestUpdate = $this->getPartNamespace('requests', $this->module.'UpdateRequest');
+        
+        $this->call('make:request', [
+            'name' => $this->requestCreate,
+        ]);
+        
+        $this->call('make:request', [
+            'name' => $this->requestUpdate,
         ]);
         
         return $this;
@@ -117,15 +159,73 @@ class LaravelModuleBuilderCommand extends Command
     
     protected function makeViews(): self
     {
-        $baseDir = base_path().'/'.config("laravel_module_builder.structures.default.baseDir").'/'.$this->module;
-        $path = config("laravel_module_builder.structures.default.paths.views");
-        $path = str_replace('{base_dir}', $baseDir, $path);
+        $path = $this->getPartPath('views');
         
         if (File::isDirectory($path)) {
             throw new \Exception('Module views directory already exists');
         }
         
-        File::makeDirectory($path);
+        File::makeDirectory($path, 0755, true);
+        
+        return $this;
+    }
+    
+    protected function makeRoutes(): self
+    {
+        $path = $this->getPartPath('routes');
+        
+        if (File::isDirectory($path)) {
+            throw new \Exception('Module routes directory already exists');
+        }
+        
+        File::makeDirectory($path, 0755, true);
+        
+        $stub = $this->getStub('routes');
+        
+        $stub = str_replace('{controller_namespace}', $this->controller, $stub);
+        $stub = str_replace('{model_name}', strtolower($this->module), $stub);
+        $stub = str_replace('{controller_name}', Str::afterLast($this->controller, '\\'), $stub);
+        
+        File::put($path.'/Routes.php', $stub);
+        
+        return $this;
+    }
+    
+    protected function makeServices(): self
+    {
+        $path = $this->getPartPath('services');
+        $namespace = $this->getPartNamespace('services');
+        
+        if (File::isDirectory($path)) {
+            throw new \Exception('Module services directory already exists');
+        }
+        
+        File::makeDirectory($path, 0755, true);
+        
+        $stub = $this->getStub('services');
+        
+        $className = $this->module.'Services';
+        
+        $stub = str_replace('{namespace}', $namespace, $stub);
+        $stub = str_replace('{model_namespace}', $this->model, $stub);
+        $stub = str_replace('{class_name}', $className, $stub);
+        
+        File::put("{$path}/{$className}.php", $stub);
+        
+        return $this;
+    }
+    
+    protected function makeMigration(): self
+    {
+        $path = $this->getPartPath('migrations');
+        
+        if (File::isDirectory($path)) {
+            throw new \Exception('Module migrations directory already exists');
+        }
+        
+        File::makeDirectory($path, 0755, true);
+        
+        $this->migrations = $path;
         
         return $this;
     }
