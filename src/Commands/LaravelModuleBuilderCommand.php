@@ -99,6 +99,8 @@ class LaravelModuleBuilderCommand extends Command
         return str_replace('{base_dir}', $baseNamespace, $path).($fileName ? ('\\'.$fileName) : '');
     }
     
+    //test here
+    
     private function getStub($stub): string
     {
         return File::get(__DIR__."/../Stubs/{$stub}.stub");
