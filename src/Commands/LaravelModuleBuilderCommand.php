@@ -6,8 +6,6 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
-use function Symfony\Component\Translation\t;
-
 class LaravelModuleBuilderCommand extends Command
 {
     private array $structure;
@@ -57,7 +55,7 @@ class LaravelModuleBuilderCommand extends Command
     
     public function handle()
     {
-        try{
+        try {
             $activeStructure = $this->option('structure') == 'default' ? config('laravel_module_builder.structure') : $this->options('structure');
             
             $this->structure = config("laravel_module_builder.structures.{$activeStructure}");
@@ -79,7 +77,7 @@ class LaravelModuleBuilderCommand extends Command
             $this->makeMigration();
             
             $this->comment('All done');
-        } catch (\Exception $error){
+        } catch (\Exception $error) {
             $this->error('An error occurred: '.$error->getMessage());
             
             return;
@@ -96,7 +94,7 @@ class LaravelModuleBuilderCommand extends Command
     private function getPartNamespace($part, $fileName = null)
     {
         $baseNamespace = config("laravel_module_builder.structures.default.baseNamespace").'\\'.$this->module;
-        $path          = config("laravel_module_builder.structures.default.paths.{$part}");
+        $path = config("laravel_module_builder.structures.default.paths.{$part}");
         
         return str_replace('{base_dir}', $baseNamespace, $path).($fileName ? ('\\'.$fileName) : '');
     }
@@ -108,7 +106,7 @@ class LaravelModuleBuilderCommand extends Command
     
     protected function makeModel(): self
     {
-        $path        = $this->getPartNamespace('models', $this->module);
+        $path = $this->getPartNamespace('models', $this->module);
         $this->model = $path;
         
         $this->call('make:model', [
@@ -123,8 +121,8 @@ class LaravelModuleBuilderCommand extends Command
         $path = $this->getPartNamespace('controllers', $this->module.'Controller');
         
         $this->call('make:controller', [
-            'name'       => $path,
-            '--model'    => $this->model,
+            'name' => $path,
+            '--model' => $this->model,
             '--resource' => true,
         ]);
         
@@ -152,7 +150,7 @@ class LaravelModuleBuilderCommand extends Command
     protected function makeProvider(): self
     {
         $this->call('module:service-provide', [
-            'name'  => $this->module.'ServiceProvider',
+            'name' => $this->module.'ServiceProvider',
             'model' => $this->module,
         ]);
         
@@ -195,7 +193,7 @@ class LaravelModuleBuilderCommand extends Command
     
     protected function makeServices(): self
     {
-        $path      = $this->getPartPath('services');
+        $path = $this->getPartPath('services');
         $namespace = $this->getPartNamespace('services');
         
         if (File::isDirectory($path)) {
@@ -231,5 +229,4 @@ class LaravelModuleBuilderCommand extends Command
         
         return $this;
     }
-    
 }
