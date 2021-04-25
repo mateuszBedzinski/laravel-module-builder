@@ -1,0 +1,10 @@
+<?php
+
+namespace {namespace};
+
+use {model_namespace};
+
+class {class_name}
+{
+
+}
