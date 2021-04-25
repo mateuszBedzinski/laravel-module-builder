@@ -55,7 +55,7 @@ class LaravelModuleBuilderCommand extends Command
     
     public function handle()
     {
-        try{
+        try {
             $activeStructure = $this->option('structure') == 'default' ? config('laravel_module_builder.structure') : $this->options('structure');
             
             $this->structure = config("laravel_module_builder.structures.{$activeStructure}");
@@ -77,7 +77,7 @@ class LaravelModuleBuilderCommand extends Command
             $this->makeMigration();
             
             $this->comment('All done');
-        } catch (\Exception $error){
+        } catch (\Exception $error) {
             $this->error('An error occurred: '.$error->getMessage());
             
             return;
@@ -93,7 +93,7 @@ class LaravelModuleBuilderCommand extends Command
     
     private function getPartNamespace($part, $fileName = null)
     {
-        $baseNamespace = config("laravel_module_builder.structures.default.baseNamespace").'\\'.$this->module;
+        $baseNamespace = config('laravel_module_builder.structures.default.baseNamespace').'\\'.$this->module;
         $path          = config("laravel_module_builder.structures.default.paths.{$part}");
         
         return str_replace('{base_dir}', $baseNamespace, $path).($fileName ? ('\\'.$fileName) : '');
