@@ -4,8 +4,8 @@ namespace Mbedzinski\LaravelModuleBuilder;
 
 use Mbedzinski\LaravelModuleBuilder\Commands\LaravelModuleBuilderCommand;
 use Mbedzinski\LaravelModuleBuilder\Commands\ServiceProviderBuildCommand;
-use Mbedzinski\LaravelModuleBuilder\Commands\SubCommands\MakeMigrationCommand;
 use Mbedzinski\LaravelModuleBuilder\Commands\SubCommands\MakeControllerCommand;
+use Mbedzinski\LaravelModuleBuilder\Commands\SubCommands\MakeMigrationCommand;
 use Mbedzinski\LaravelModuleBuilder\Commands\SubCommands\MakeModelCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;

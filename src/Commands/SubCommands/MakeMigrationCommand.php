@@ -2,7 +2,6 @@
 
 namespace Mbedzinski\LaravelModuleBuilder\Commands\SubCommands;
 
-use Illuminate\Support\Facades\File;
 use Mbedzinski\LaravelModuleBuilder\Commands\LaravelModuleBaseCommand;
 
 class MakeMigrationCommand extends LaravelModuleBaseCommand
@@ -17,7 +16,7 @@ class MakeMigrationCommand extends LaravelModuleBaseCommand
     
     public function handle(): void
     {
-        try{
+        try {
             $this->prepareHandle($this);
             
             $path = $this->getPartPath('migrations');
@@ -26,7 +25,7 @@ class MakeMigrationCommand extends LaravelModuleBaseCommand
                 'name'   => $this->argument('migration'),
                 '--path' => str_replace(base_path(), '', $path),
             ]);
-        } catch (\Exception $error){
+        } catch (\Exception $error) {
             $this->error('An error occurred: '.$error->getMessage());
             
             return;

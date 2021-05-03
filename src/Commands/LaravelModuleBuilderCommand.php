@@ -15,7 +15,7 @@ class LaravelModuleBuilderCommand extends LaravelModuleBaseCommand
     
     public function handle(): void
     {
-        try{
+        try {
             $this->prepareHandle($this);
             
             $this->makeModel();
@@ -28,7 +28,7 @@ class LaravelModuleBuilderCommand extends LaravelModuleBaseCommand
             $this->makeMigration();
             
             $this->comment('All done');
-        } catch (\Exception $error){
+        } catch (\Exception $error) {
             $this->error('An error occurred: '.$error->getMessage());
             
             return;
