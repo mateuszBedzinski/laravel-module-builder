@@ -2,70 +2,21 @@
 
 namespace Mbedzinski\LaravelModuleBuilder\Commands;
 
-use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
-class LaravelModuleBuilderCommand extends Command
+class LaravelModuleBuilderCommand extends LaravelModuleBaseCommand
 {
-    private array $structure;
-    private string $module;
-    
-    private $model;
-    private $controller;
-    private $requestCreate;
-    private $requestUpdate;
-    private $migrations;
-    
-    public $signature = 'make:module
-                            {module}
-                            {--structure=default}
-                            {--no-service-provider}
-                            {--no-model}
-                            {--no-views}
-                            {--no-migrations}
-                            {--no-requests}
-                            {--no-config}
-                            {--no-controller}
-                            {--no-helpers}
-                            {--no-services}';
+    public $signature = 'make:module {module}
+     {--structure=default}
+     ';
     
     public $description = 'Create module';
     
-    private function getModulePath(): string
-    {
-        $path = base_path();
-        $path .= '/'.$this->structure[ 'baseDir' ];
-        $path .= '/'.$this->module;
-
-//        File::deleteDirectory($path);
-        
-        return $path;
-    }
-    
-    private function prepareModuleStructure()
-    {
-        $path = $this->getModulePath();
-        if (File::isDirectory($path)) {
-            throw new \Exception('Module already exists');
-        }
-        
-        return File::makeDirectory($path);
-    }
-    
-    public function handle()
+    public function handle(): void
     {
         try {
-            $activeStructure = $this->option('structure') == 'default' ? config('laravel_module_builder.structure') : $this->options('structure');
-            
-            $this->structure = config("laravel_module_builder.structures.{$activeStructure}");
-            
-            $this->module = ucfirst($this->argument('module'));
-            
-            //TODO DELETE ME!!
-            File::deleteDirectory($this->getModulePath());
-            
-            $this->prepareModuleStructure();
+            $this->prepareHandle($this);
             
             $this->makeModel();
             $this->makeProvider();
@@ -84,33 +35,14 @@ class LaravelModuleBuilderCommand extends Command
         }
     }
     
-    private function getPartPath($part)
-    {
-        $path = config("laravel_module_builder.structures.default.paths.{$part}");
-        
-        return str_replace('{base_dir}', $this->getModulePath(), $path);
-    }
-    
-    private function getPartNamespace($part, $fileName = null)
-    {
-        $baseNamespace = config("laravel_module_builder.structures.default.baseNamespace").'\\'.$this->module;
-        $path = config("laravel_module_builder.structures.default.paths.{$part}");
-        
-        return str_replace('{base_dir}', $baseNamespace, $path).($fileName ? ('\\'.$fileName) : '');
-    }
-    
-    private function getStub($stub): string
-    {
-        return File::get(__DIR__."/../Stubs/{$stub}.stub");
-    }
-    
     protected function makeModel(): self
     {
-        $path = $this->getPartNamespace('models', $this->module);
+        $path        = $this->getPartNamespace('models', $this->module);
         $this->model = $path;
         
-        $this->call('make:model', [
-            'name' => $path,
+        $this->call('make:module-model', [
+            'module' => $this->module,
+            'model'  => $this->module,
         ]);
         
         return $this;
@@ -120,10 +52,11 @@ class LaravelModuleBuilderCommand extends Command
     {
         $path = $this->getPartNamespace('controllers', $this->module.'Controller');
         
-        $this->call('make:controller', [
-            'name' => $path,
-            '--model' => $this->model,
-            '--resource' => true,
+        $this->call('make:module-controller', [
+            'module' => $this->module,
+            'name'   => $this->module,
+            '--m'    => $this->model,
+            '--r'    => true,
         ]);
         
         $this->controller = $path;
@@ -150,7 +83,7 @@ class LaravelModuleBuilderCommand extends Command
     protected function makeProvider(): self
     {
         $this->call('module:service-provide', [
-            'name' => $this->module.'ServiceProvider',
+            'name'  => $this->module.'ServiceProvider',
             'model' => $this->module,
         ]);
         
@@ -193,7 +126,7 @@ class LaravelModuleBuilderCommand extends Command
     
     protected function makeServices(): self
     {
-        $path = $this->getPartPath('services');
+        $path      = $this->getPartPath('services');
         $namespace = $this->getPartNamespace('services');
         
         if (File::isDirectory($path)) {
