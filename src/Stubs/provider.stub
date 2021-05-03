@@ -3,11 +3,12 @@
 namespace DummyNamespace;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Foundation\AliasLoader;
 use {Model_namespace};
 
 class DummyClass extends ServiceProvider
 {
-  private $moduleBaseDir;
+    private $moduleBaseDir;
 
     public function register()
     {
