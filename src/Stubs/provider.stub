@@ -35,7 +35,7 @@ class DummyClass extends ServiceProvider
 
     private function loadMigrations(): self
     {
-        $this->loadMigrationsFrom($this->moduleBaseDir.'Database/migrations');
+        $this->loadMigrationsFrom($this->moduleBaseDir.'Database/Migrations');
 
         return $this;
     }
